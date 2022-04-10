@@ -2,61 +2,90 @@ export type Rule = {
   message?: string;
   rule: RegExp;
   rules?: Omit<Rule, 'rules'>[];
-}
+} 
 
 export const rules: Rule[] = [
-  {
-    rule: /'#[A-z]* <[A-z]*>'/g,
+  { 
+    rule: /#[A-z]*/,
     rules: [
       {
-        rule: /'#include <[A-z]*>'/g,
+        rule: /#[A-z]* <(.)*>/,
         message: 'A declaração deve ser feita da seguinte forma: \'#include <tipo.nome>\'',
       },
       {
-        rule: /'#include <[A-z]*.[A-z]>'/g,
+        rule: /#include <(.)*>/,
         message: 'A declaração deve ser feita da seguinte forma: \'#include <tipo.nome>\'',
       },
-    ]
-  },
-  {
-    rule: /[A-z]* [A-z]*\(\)/g,
-    rules: [
       {
-        rule: /{(.|\s)*}/g,
-        message: 'A declaração da função deve ser feita da seguinte forma: \'{ <comandos> }\'',
+        rule: /#include <[A-z]*.[A-z]>/,
+        message: 'A declaração deve ser feita da seguinte forma: \'#include <nome.extensão>\'',
       },
     ]
   },
   {
-    rule: /printf*\(.*\)/g,
+    rule: /[A-z]* [A-z]*\(\)/,
     rules: [
       {
-        rule: /printf*\(.*\);/g,
-        message: 'A declaração do "printf" está incorreta.',
+        rule: /int main\(\)/,
+        message: 'A declaração da função deve ser feita da seguinte forma: \'int main()\'',
       },
     ]
   },
   {
-    rule: /scanf*\(.*\)/g,
+    rule: /{|}/,
+    rules: [],
+  },
+  {
+    rule: /printf\(.*\)/,
     rules: [
       {
-        rule: /scanf*\(.*\);/g,
-        message: 'A declaração do "scanf" está incorreta.',
+        rule: /printf\(.*\);/,
+        message: 'Adicione um ; ao final da declaração',
       },
     ]
   },
   {
-    rule:  /[a-z]* [0-9]/g,
-    message: 'A declaração de retorno está incorreta.',
+    rule: /scanf\(.*\)/,
     rules: [
       {
-        rule: /return [0-9]/g,
-        message: 'A declaração de retorno está incorreta.',
+        rule: /scanf\(.*\);/,
+        message: 'Adicione um ";" ao final da declaração',
       },
       {
-        rule: /return [0-9];/g,
-        message: 'A declaração de retorno está incorreta.',
+        rule: /scanf*\((\s)*("((%)+[A-z]+(\s)*)+"(\s)*,(\s)*)(&[a-z]+)(\s)*\);/,
+        message: 'Argumentos para o "scanf" estão incorretos',
       },
+    ]
+  },
+  {
+    rule:  /[a-z]* [0-9]/,
+    message: 'A declaração de retorno está incorreta',
+    rules: [
+      {
+        rule: /return [0-9]/,
+        message: 'A declaração de retorno está incorreta',
+      },
+      {
+        rule: /return [0-9];/,
+        message: 'Declare ";" no final ',
+      },
+    ]
+  },
+  {
+    rule:  /[A-z]+(\s)([A-z]+(,)?(\s)?)+;/,
+    rules: []
+  },
+  {
+    rule:  /^\s*([A-Za-z_]\w*)\s*=\s*(.*)/,
+    rules: [
+      {
+        rule: /^\s*([A-Za-z_]\w*)\s*=\s*(.*);/,
+        message: 'Declare ";" no final ',
+      },
+      {
+        rule: /^\s*([A-Za-z_]\w*)\s*=\s*([A-z]+\s+(\+|-|\*|\/|%|\+\+|--)\s+[A-z]+)/,
+        message: 'Atribuição de valor incorreta',
+      }
     ]
   },
 ]

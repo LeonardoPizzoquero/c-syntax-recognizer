@@ -6,11 +6,13 @@ class Recognizer {
   private lines: string[] = [];
   private error: string = '';
   private rules: Rule[] = rules;
+  private file: string = '';
 
   constructor (file: string) {
     this.lines = this.readFile(file);
+    this.file = this.lines.join('\n');
   }
-
+ 
   private readFile(file: string): string[] {
     var lines: string[] = [];
 
@@ -23,15 +25,19 @@ class Recognizer {
     return this.lines;
   }
 
+  public getFile() {
+    return this.file;
+  }
+
   public checkSyntax() {
     let correct = true;
-
+ 
     this.lines.forEach((line) => {
       if (line === '' || !correct) return;
 
       correct = this.checkRules(line);
     });
-
+ 
     if (!correct) return this.error;
 
     return '✅\u001b[1;32m Sintaxe correta.'; 
@@ -41,24 +47,24 @@ class Recognizer {
     const ruleCategoryIndex = this.rules.findIndex(({ rule }) => {
       return rule.test(line)
     });
-
+ 
     if (ruleCategoryIndex === -1) {
       this.buildErrorMessage(this.lines.indexOf(line) + 1, line, 'Erro de sintaxe');
 
       return false;
-    }
+    }  
 
     const ruleCategory = this.rules[ruleCategoryIndex];
 
-    const findWrongRule = ruleCategory.rules?.find(({ rule }) => {
-      return !rule.test(line.trim())
+    const findWrongRule = ruleCategory.rules?.find(({ rule, global }) => {
+      return global ? !rule.test(this.file) : !rule.test(line.trim())
     }); 
 
     if (findWrongRule) {
       this.buildErrorMessage(this.lines.indexOf(line) + 1, line, String(findWrongRule.message));
 
       return false;
-    }
+    } 
  
     return true
   } 
@@ -67,9 +73,9 @@ class Recognizer {
     this.error = `❌ \u001b[1;31mERRO 
 -> Linha ${lineNumber}
 -> Código: ${line.trim()}
--> Mensagem: ${message}
+-> Mensagem: ${message} 
     `;
   } 
-}  
+}    
  
 export { Recognizer };   
